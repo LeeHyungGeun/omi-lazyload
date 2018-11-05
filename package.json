@@ -5,7 +5,7 @@
   "main": "./dist/omi-lazyload.js",
   "scripts": {
     "simple": "webpack -w",
-    "build": "babel index.js --out-file dist/omi-lazyload.js"
+    "build": "webpack --config webpack.config.prod.js"
   },
   "repository": {
     "type": "git",
