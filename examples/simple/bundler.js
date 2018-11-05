@@ -1695,13 +1695,18 @@ var LazyLoad = (_temp = _class = function (_WeElement) {
       var element = props.element ? props.element.toLowerCase() : 'img';
       return element === 'iframe' ? Omi.h('iframe', data) : Omi.h('img', data);
     }
+  }], [{
+    key: 'data',
+    get: function get() {
+      return {};
+    }
   }]);
 
   return LazyLoad;
 }(_omi.WeElement), _class.observe = true, _temp);
 
 
-(0, _omi.define)('omi-lazyload', LazyLoad, true);
+(0, _omi.define)('omi-lazyload', LazyLoad, false);
 
 /***/ }),
 /* 4 */

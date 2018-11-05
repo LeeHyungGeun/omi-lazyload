@@ -8,7 +8,7 @@ const webpack = require('webpack');
 const ENV = process.env.npm_lifecycle_event;
 
 const config  = {
-    entry: __dirname,
+    entry: __dirname + '/index.js',
     output: {
         // path: __dirname,
         path: __dirname + '/dist/',

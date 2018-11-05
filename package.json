@@ -1,6 +1,6 @@
 {
   "name": "omi-lazyload",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "Omi / Lazyload. Simple Lazyload image / iframe.",
   "main": "./dist/omi-lazyload.js",
   "scripts": {

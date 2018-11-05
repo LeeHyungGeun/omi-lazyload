@@ -4,6 +4,11 @@ import { observer } from './lazyload'
 class LazyLoad extends WeElement {
   static observe = true;
 
+  static get data() {
+    return {
+    }
+  }
+
   install() {
     const props = this.props;
     this.data = {
@@ -21,9 +26,9 @@ class LazyLoad extends WeElement {
   render(props, data) {
     const element = props.element ? props.element.toLowerCase() : 'img'
     return element === 'iframe' ?
-      <iframe {...data} /> :
-      <img {...data} />
+      <iframe {...this.data} /> :
+      <img {...this.data} />
   }
 }
 
-define('omi-lazyload', LazyLoad, true)
+define('omi-lazyload', LazyLoad, false)
