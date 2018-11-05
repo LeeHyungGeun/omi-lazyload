@@ -1,10 +1,11 @@
 {
   "name": "omi-lazyload",
   "version": "0.0.1",
-  "description": "Omi / Lazyload. Tiny lazyload image / iframe.",
-  "main": "index.js",
+  "description": "Omi / Lazyload. Simple Lazyload image / iframe.",
+  "main": "./dist/omi-lazyload.js",
   "scripts": {
-    "simple": "webpack -w"
+    "simple": "webpack -w",
+    "build": "babel index.js --out-file dist/omi-lazyload.js"
   },
   "repository": {
     "type": "git",
