@@ -1,13 +1,13 @@
-var path = require('path');
-var webpack = require('webpack');
+const path = require('path');
+const webpack = require('webpack');
 
 /**
  * Env
  * Get npm lifecycle event to identify the environment
  */
-var ENV = process.env.npm_lifecycle_event;
+const ENV = process.env.npm_lifecycle_event;
 
-var config  = {
+const config  = {
     entry: __dirname+'/examples/' + ENV + '/main.js',
     output: {
         // path: __dirname,
