@@ -1,5 +1,5 @@
 import { define, WeElement, render } from 'omi'
-import '../../index'
+import '../../src/index'
 
 define('my-app', class extends WeElement {
   static observe = true

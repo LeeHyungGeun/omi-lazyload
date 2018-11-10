@@ -77,7 +77,7 @@ Object.defineProperty(exports, "__esModule", {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /**
- * omi v4.0.19  http://omijs.org
+ * omi v4.0.21  http://omijs.org
  * Omi === Preact + Scoped CSS + Store System + Native Support in 3kb javascript.
  * By dntzhang https://github.com/dntzhang
  * Github: https://github.com/Tencent/omi
@@ -529,7 +529,9 @@ function idiff(dom, vnode, context, mountAll, componentRoot) {
   }
   // otherwise, if there are existing or new children, diff them:
   else if (vchildren && vchildren.length || fc != null) {
-      innerDiffNode(out, vchildren, context, mountAll, hydrating || props.dangerouslySetInnerHTML != null);
+      if (!(out.constructor.is == 'WeElement' && out.constructor.noSlot)) {
+        innerDiffNode(out, vchildren, context, mountAll, hydrating || props.dangerouslySetInnerHTML != null);
+      }
     }
 
   // Apply attributes/props from VNode to the DOM Element:
@@ -842,6 +844,7 @@ var JSONPatcherProxy = function () {
       }
       operation.value = newValue;
     }
+    operation.oldValue = target[key];
     var reflectionResult = Reflect.set(target, key, newValue);
     instance.defaultCallback(operation);
     return reflectionResult;
@@ -1065,20 +1068,13 @@ function observe(target) {
   target.observe = true;
 }
 
-var preValue = null;
-var prePath = null;
-var preEle = null;
-
 function proxyUpdate(ele) {
   var timeout = null;
   ele.data = new JSONPatcherProxy(ele.data).observe(false, function (info) {
-    if (preValue === info.value && prePath === info.path && preEle === ele) {
+    if (info.oldValue === info.value) {
       return;
     }
 
-    preValue = info.value;
-    prePath = info.path;
-    preEle = ele;
     clearTimeout(timeout);
 
     timeout = setTimeout(function () {
@@ -1131,7 +1127,18 @@ var WeElement = function (_HTMLElement) {
     }
 
     this.install();
-    var shadowRoot = this.attachShadow({ mode: 'open' });
+    var shadowRoot;
+    if (!this.shadowRoot) {
+      shadowRoot = this.attachShadow({
+        mode: 'open'
+      });
+    } else {
+      shadowRoot = this.shadowRoot;
+      var fc;
+      while (fc = shadowRoot.firstChild) {
+        shadowRoot.removeChild(fc);
+      }
+    }
 
     this.css && shadowRoot.appendChild(cssToDom(this.css()));
     this.beforeRender();
@@ -1508,7 +1515,7 @@ var omi = {
 };
 
 options.root.Omi = omi;
-options.root.Omi.version = '4.0.19';
+options.root.Omi.version = '4.0.21';
 
 exports.default = omi;
 exports.tag = tag;
@@ -1693,7 +1700,7 @@ var LazyLoad = (_temp = _class = function (_WeElement) {
     key: 'render',
     value: function render(props, data) {
       var element = props.element ? props.element.toLowerCase() : 'img';
-      return element === 'iframe' ? Omi.h('iframe', data) : Omi.h('img', data);
+      return element === 'iframe' ? Omi.h('iframe', this.data) : Omi.h('img', this.data);
     }
   }], [{
     key: 'data',

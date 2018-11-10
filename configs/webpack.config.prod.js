@@ -8,11 +8,11 @@ const webpack = require('webpack');
 const ENV = process.env.npm_lifecycle_event;
 
 const config  = {
-    entry: __dirname+'/examples/' + ENV + '/main.js',
+    entry: path.join(__dirname, '..', '/src', '/index.js'),
     output: {
         // path: __dirname,
-        path: __dirname+'/examples/' + ENV + '/',
-        filename: 'bundler.js'
+        path: path.join(__dirname, '..', '/dist/'),
+        filename: 'omi-lazyload.js'
     },
     module: {
         loaders: [
@@ -31,6 +31,7 @@ const config  = {
         ]
     },
     plugins: [
+        new webpack.optimize.UglifyJsPlugin()
     ],
     stats: {
         // Nice colored output

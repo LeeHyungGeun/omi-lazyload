@@ -4,8 +4,9 @@
   "description": "Omi / Lazyload. Simple Lazyload image / iframe.",
   "main": "./dist/omi-lazyload.js",
   "scripts": {
-    "simple": "webpack -w",
-    "build": "webpack --config webpack.config.prod.js"
+    "simple": "webpack --config ./configs/webpack.config.js -w",
+    "build": "webpack --config ./configs/webpack.config.prod.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "babel-preset-env": "^1.6.0",
     "babel-preset-omi": "^0.1.1",
     "esprima-fb": "^15001.1001.0-dev-harmony-fb",
+    "jest": "^23.6.0",
     "webpack": "^3.4.1"
   },
   "dependencies": {
