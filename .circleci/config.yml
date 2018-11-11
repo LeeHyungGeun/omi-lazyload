@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/node:7.10
+      - image: circleci/node:10.0.0
       
     working_directory: ~/repo
 
@@ -17,14 +17,14 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: npm install
+      - run: yarn install
 
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
         
-      - run: npm run fix
+      - run: yarn run fix
       # run tests!
       # - run: yarn test
 
