@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "intersection-observer": "^0.5.1",
-    "omi": "latest"
+    "omi": "^4.0.29"
   },
   "prettier": {
     "singleQuote": true,
