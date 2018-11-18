@@ -18,7 +18,9 @@ define('my-app', class extends WeElement {
   render() {
     return (
       <div class="main">
-        <omi-lazyload src="https://github.com/Tencent/omi/blob/master/assets/omi-logo.svg" />
+        <omi-lazyload>
+          <img src="https://github.com/Tencent/omi/blob/master/assets/omi-logo.svg" />
+        </omi-lazyload>
       </div>
     )
   }
