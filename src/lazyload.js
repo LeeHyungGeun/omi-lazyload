@@ -1,12 +1,20 @@
+import { loadPolyfills } from './loadPolyfills'
+
 const config = {}
 
-let observer = new IntersectionObserver((entries, self) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.data.show = true
-      self.unobserve(entry.target)
-    }
+const observer = () => {
+  return new Promise((resolve) => {
+    loadPolyfills().then(() => {
+      resolve(new IntersectionObserver((entries, self) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.data.show = true
+              self.unobserve(entry.target)
+            }
+          })
+        }, config))
+    })
   })
-}, config)
+}
 
 export { observer }

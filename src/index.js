@@ -1,4 +1,3 @@
-import 'intersection-observer'
 import { WeElement, define } from 'omi'
 import { observer } from './lazyload'
 
@@ -16,9 +15,9 @@ class LazyLoad extends WeElement {
       show: false,
     }
   }
-ㄴ
+
   installed() {
-    observer.observe(this)
+    observer().then((_observer) => _observer.observe(this))
   }
 
   render(props, data) {
@@ -27,27 +26,3 @@ class LazyLoad extends WeElement {
 }
 
 define('omi-lazyload', LazyLoad)
-
-
-
-
-
-
-    // this.loadPolyfills()
-  // loadPolyfills = () => {
-  //   const polyfills = []
-
-  //   if (!this.supportsIntersectionObserver()) {
-  //     polyfills.push(import('intersection-observer'))
-  //   }
-
-  //   return Promise.all(polyfills)
-  // }
-
-  // supportsIntersectionObserver = () => {
-  //   return (
-  //     'IntersectionObserver' in global &&
-  //     'IntersectionObserverEntry' in global &&
-  //     'intersectionRatio' in IntersectionObserverEntry.prototype
-  //   )
-  // }
