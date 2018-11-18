@@ -1,5 +1,5 @@
 import { define, WeElement, render } from 'omi'
-import '../../index'
+import '../../src/index'
 
 define('my-app', class extends WeElement {
   static observe = true
@@ -27,29 +27,20 @@ define('my-app', class extends WeElement {
     return (
       <div class="app">
         <div class="empty">Empty Page</div>
+        <div class="empty">Empty Page</div>
+
         <div class="img">
-          <omi-lazyload
-            src="./assets/omi-logo.svg"
-            alt="Omi Logo"
-          />
-        </div>
-        <div class="img">
-          <omi-lazyload
-            src="./assets/omi-logo.svg"
-            alt="Omi Logo"
-          />
-        </div>
-        <div class="img">
-          <omi-lazyload
-            src="./assets/omi-logo.svg"
-            alt="Omi Logo"
-          />
-        </div>
-        <div class="img">
-          <omi-lazyload
-            src="./assets/omi-logo.svg"
-            alt="Omi Logo"
-          />
+          <omi-lazyload>
+            <div>
+              <img src="./assets/omi-logo.svg" alt="Omi Logo" />
+            </div>
+            <div>
+              <img src="./assets/omi-logo.svg" alt="Omi Logo" />
+            </div>
+            <div>
+              <img src="./assets/omi-logo.svg" alt="Omi Logo" />
+            </div>
+          </omi-lazyload>
         </div>
       </div>
     )

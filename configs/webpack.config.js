@@ -8,10 +8,10 @@ const webpack = require('webpack');
 const ENV = process.env.npm_lifecycle_event;
 
 const config  = {
-    entry: __dirname+'/examples/' + ENV + '/main.js',
+    entry: path.join(__dirname, '..', '/examples/', ENV, '/main.js'),
     output: {
         // path: __dirname,
-        path: __dirname+'/examples/' + ENV + '/',
+        path: path.join(__dirname, '..', '/examples/', ENV, '/'),
         filename: 'bundler.js'
     },
     module: {
@@ -24,7 +24,8 @@ const config  = {
                     plugins: [
                         "transform-decorators-legacy",
                         "transform-class-properties",
-                        "transform-object-rest-spread"
+                        "transform-object-rest-spread",
+                        "syntax-dynamic-import"
                     ]
                 }
             }
