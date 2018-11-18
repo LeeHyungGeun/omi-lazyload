@@ -12,12 +12,12 @@ class LazyLoad extends WeElement {
   install() {
     this.data = {
       ...this.props,
-      show: false,
+      show: false
     }
   }
 
   installed() {
-    observer().then((_observer) => _observer.observe(this))
+    observer.observe(this)
   }
 
   render(props, data) {
