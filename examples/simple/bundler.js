@@ -1,6 +1,36 @@
 /******/ (function(modules) { // webpackBootstrap
+/******/ 	// install a JSONP callback for chunk loading
+/******/ 	var parentJsonpFunction = window["webpackJsonp"];
+/******/ 	window["webpackJsonp"] = function webpackJsonpCallback(chunkIds, moreModules, executeModules) {
+/******/ 		// add "moreModules" to the modules object,
+/******/ 		// then flag all "chunkIds" as loaded and fire callback
+/******/ 		var moduleId, chunkId, i = 0, resolves = [], result;
+/******/ 		for(;i < chunkIds.length; i++) {
+/******/ 			chunkId = chunkIds[i];
+/******/ 			if(installedChunks[chunkId]) {
+/******/ 				resolves.push(installedChunks[chunkId][0]);
+/******/ 			}
+/******/ 			installedChunks[chunkId] = 0;
+/******/ 		}
+/******/ 		for(moduleId in moreModules) {
+/******/ 			if(Object.prototype.hasOwnProperty.call(moreModules, moduleId)) {
+/******/ 				modules[moduleId] = moreModules[moduleId];
+/******/ 			}
+/******/ 		}
+/******/ 		if(parentJsonpFunction) parentJsonpFunction(chunkIds, moreModules, executeModules);
+/******/ 		while(resolves.length) {
+/******/ 			resolves.shift()();
+/******/ 		}
+/******/
+/******/ 	};
+/******/
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
+/******/
+/******/ 	// objects to store loaded and loading chunks
+/******/ 	var installedChunks = {
+/******/ 		1: 0
+/******/ 	};
 /******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
@@ -26,6 +56,55 @@
 /******/ 		return module.exports;
 /******/ 	}
 /******/
+/******/ 	// This file contains only the entry chunk.
+/******/ 	// The chunk loading function for additional chunks
+/******/ 	__webpack_require__.e = function requireEnsure(chunkId) {
+/******/ 		var installedChunkData = installedChunks[chunkId];
+/******/ 		if(installedChunkData === 0) {
+/******/ 			return new Promise(function(resolve) { resolve(); });
+/******/ 		}
+/******/
+/******/ 		// a Promise means "currently loading".
+/******/ 		if(installedChunkData) {
+/******/ 			return installedChunkData[2];
+/******/ 		}
+/******/
+/******/ 		// setup Promise in chunk cache
+/******/ 		var promise = new Promise(function(resolve, reject) {
+/******/ 			installedChunkData = installedChunks[chunkId] = [resolve, reject];
+/******/ 		});
+/******/ 		installedChunkData[2] = promise;
+/******/
+/******/ 		// start chunk loading
+/******/ 		var head = document.getElementsByTagName('head')[0];
+/******/ 		var script = document.createElement('script');
+/******/ 		script.type = "text/javascript";
+/******/ 		script.charset = 'utf-8';
+/******/ 		script.async = true;
+/******/ 		script.timeout = 120000;
+/******/
+/******/ 		if (__webpack_require__.nc) {
+/******/ 			script.setAttribute("nonce", __webpack_require__.nc);
+/******/ 		}
+/******/ 		script.src = __webpack_require__.p + "" + chunkId + ".bundler.js";
+/******/ 		var timeout = setTimeout(onScriptComplete, 120000);
+/******/ 		script.onerror = script.onload = onScriptComplete;
+/******/ 		function onScriptComplete() {
+/******/ 			// avoid mem leaks in IE.
+/******/ 			script.onerror = script.onload = null;
+/******/ 			clearTimeout(timeout);
+/******/ 			var chunk = installedChunks[chunkId];
+/******/ 			if(chunk !== 0) {
+/******/ 				if(chunk) {
+/******/ 					chunk[1](new Error('Loading chunk ' + chunkId + ' failed.'));
+/******/ 				}
+/******/ 				installedChunks[chunkId] = undefined;
+/******/ 			}
+/******/ 		};
+/******/ 		head.appendChild(script);
+/******/
+/******/ 		return promise;
+/******/ 	};
 /******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
@@ -59,8 +138,11 @@
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
+/******/ 	// on error function for async loading
+/******/ 	__webpack_require__.oe = function(err) { console.error(err); throw err; };
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -77,7 +159,7 @@ Object.defineProperty(exports, "__esModule", {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /**
- * omi v4.0.21  http://omijs.org
+ * omi v4.0.29  http://omijs.org
  * Omi === Preact + Scoped CSS + Store System + Native Support in 3kb javascript.
  * By dntzhang https://github.com/dntzhang
  * Github: https://github.com/Tencent/omi
@@ -354,9 +436,19 @@ function setAccessor(node, name, old, value, isSvg) {
     var useCapture = name !== (name = name.replace(/Capture$/, ''));
     name = name.toLowerCase().substring(2);
     if (value) {
-      if (!old) node.addEventListener(name, eventProxy, useCapture);
+      if (!old) {
+        node.addEventListener(name, eventProxy, useCapture);
+        if (name == 'tap') {
+          node.addEventListener('touchstart', touchStart, useCapture);
+          node.addEventListener('touchstart', touchEnd, useCapture);
+        }
+      }
     } else {
       node.removeEventListener(name, eventProxy, useCapture);
+      if (name == 'tap') {
+        node.removeEventListener('touchstart', touchStart, useCapture);
+        node.removeEventListener('touchstart', touchEnd, useCapture);
+      }
     }
     (node._listeners || (node._listeners = {}))[name] = value;
   } else if (name !== 'list' && name !== 'type' && !isSvg && name in node) {
@@ -392,6 +484,18 @@ function eventProxy(e) {
   return this._listeners[e.type](options.event && options.event(e) || e);
 }
 
+function touchStart(e) {
+  this.___touchX = e.touches[0].pageX;
+  this.___touchY = e.touches[0].pageY;
+  this.___scrollTop = document.body.scrollTop;
+}
+
+function touchEnd(e) {
+  if (Math.abs(e.changedTouches[0].pageX - this.___touchX) < 30 && Math.abs(e.changedTouches[0].pageY - this.___touchY) < 30 && Math.abs(document.body.scrollTop - this.___scrollTop) < 30) {
+    this.dispatchEvent(new CustomEvent('tap', { detail: e }));
+  }
+}
+
 /** Diff recursion count, used to track the end of the diff cycle. */
 var diffLevel = 0;
 
@@ -421,10 +525,13 @@ function diff(dom, vnode, context, mountAll, parent, componentRoot) {
     ret = [];
     var parentNode = null;
     if (isArray(dom)) {
+      var domLength = dom.length;
+      var vnodeLength = vnode.length;
+      var maxLength = domLength >= vnodeLength ? domLength : vnodeLength;
       parentNode = dom[0].parentNode;
-      dom.forEach(function (item, index) {
-        ret.push(idiff(item, vnode[index], context, mountAll, componentRoot));
-      });
+      for (var i = 0; i < maxLength; i++) {
+        ret.push(idiff(dom[i], vnode[i], context, mountAll, componentRoot));
+      }
     } else {
       vnode.forEach(function (item) {
         ret.push(idiff(dom, item, context, mountAll, componentRoot));
@@ -440,7 +547,11 @@ function diff(dom, vnode, context, mountAll, parent, componentRoot) {
       });
     }
   } else {
-    ret = idiff(dom, vnode, context, mountAll, componentRoot);
+    if (isArray(dom)) {
+      ret = idiff(dom[0], vnode, context, mountAll, componentRoot);
+    } else {
+      ret = idiff(dom, vnode, context, mountAll, componentRoot);
+    }
     // append the element if its a new parent
     if (parent && ret.parentNode !== parent) parent.appendChild(ret);
   }
@@ -456,7 +567,7 @@ function diff(dom, vnode, context, mountAll, parent, componentRoot) {
 
 /** Internals of `diff()`, separated to allow bypassing diffLevel / mount flushing. */
 function idiff(dom, vnode, context, mountAll, componentRoot) {
-  if (dom && dom.props) {
+  if (dom && vnode && dom.props) {
     dom.props.children = vnode.children;
   }
   var out = dom,
@@ -1071,7 +1182,7 @@ function observe(target) {
 function proxyUpdate(ele) {
   var timeout = null;
   ele.data = new JSONPatcherProxy(ele.data).observe(false, function (info) {
-    if (info.oldValue === info.value) {
+    if (info.op === 'replace' && info.oldValue === info.value) {
       return;
     }
 
@@ -1126,7 +1237,7 @@ var WeElement = function (_HTMLElement) {
       }
     }
 
-    this.install();
+    !this._isInstalled && this.install();
     var shadowRoot;
     if (!this.shadowRoot) {
       shadowRoot = this.attachShadow({
@@ -1141,12 +1252,12 @@ var WeElement = function (_HTMLElement) {
     }
 
     this.css && shadowRoot.appendChild(cssToDom(this.css()));
-    this.beforeRender();
+    !this._isInstalled && this.beforeRender();
     options.afterInstall && options.afterInstall(this);
     if (this.constructor.observe) {
       proxyUpdate(this);
     }
-    this.host = diff(null, this.render(this.props, !this.constructor.pure && this.store ? this.store.data : this.data), {}, false, null, false);
+    this.host = diff(null, this.render(this.props, this.data, this.store), {}, false, null, false);
     if (isArray(this.host)) {
       this.host.forEach(function (item) {
         shadowRoot.appendChild(item);
@@ -1154,7 +1265,7 @@ var WeElement = function (_HTMLElement) {
     } else {
       shadowRoot.appendChild(this.host);
     }
-    this.installed();
+    !this._isInstalled && this.installed();
     this._isInstalled = true;
   };
 
@@ -1173,7 +1284,7 @@ var WeElement = function (_HTMLElement) {
   WeElement.prototype.update = function update() {
     this.beforeUpdate();
     this.beforeRender();
-    diff(this.host, this.render(this.props, !this.constructor.pure && this.store ? this.store.data : this.data));
+    this.host = diff(this.host, this.render(this.props, this.data, this.store), null, null, this.shadowRoot);
     this.afterUpdate();
   };
 
@@ -1226,7 +1337,7 @@ function render(vnode, parent, store) {
     });
     parent.store = store;
   }
-  diff(null, vnode, {}, false, parent, false);
+  return diff(null, vnode, {}, false, parent, false);
 }
 
 function update(patch, store) {
@@ -1498,6 +1609,12 @@ function getHost(ele) {
   }
 }
 
+function rpx(str) {
+  return str.replace(/([1-9]\d*|0)(\.\d*)*rpx/g, function (a, b) {
+    return window.innerWidth * Number(b) / 750 + 'px';
+  });
+}
+
 var Component = WeElement;
 
 var omi = {
@@ -1511,11 +1628,12 @@ var omi = {
   define: define,
   observe: observe,
   cloneElement: cloneElement,
-  getHost: getHost
+  getHost: getHost,
+  rpx: rpx
 };
 
 options.root.Omi = omi;
-options.root.Omi.version = '4.0.21';
+options.root.Omi.version = '4.0.29';
 
 exports.default = omi;
 exports.tag = tag;
@@ -1529,11 +1647,42 @@ exports.define = define;
 exports.observe = observe;
 exports.cloneElement = cloneElement;
 exports.getHost = getHost;
+exports.rpx = rpx;
 //# sourceMappingURL=omi.esm.js.map
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var g;
+
+// This works in non-strict mode
+g = function () {
+	return this;
+}();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1, eval)("this");
+} catch (e) {
+	// This works if the window reference is available
+	if ((typeof window === "undefined" ? "undefined" : _typeof(window)) === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1580,35 +1729,31 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         ),
         Omi.h(
           'div',
-          { 'class': 'img' },
-          Omi.h('omi-lazyload', {
-            src: './assets/omi-logo.svg',
-            alt: 'Omi Logo'
-          })
+          { 'class': 'empty' },
+          'Empty Page'
         ),
         Omi.h(
           'div',
           { 'class': 'img' },
-          Omi.h('omi-lazyload', {
-            src: './assets/omi-logo.svg',
-            alt: 'Omi Logo'
-          })
-        ),
-        Omi.h(
-          'div',
-          { 'class': 'img' },
-          Omi.h('omi-lazyload', {
-            src: './assets/omi-logo.svg',
-            alt: 'Omi Logo'
-          })
-        ),
-        Omi.h(
-          'div',
-          { 'class': 'img' },
-          Omi.h('omi-lazyload', {
-            src: './assets/omi-logo.svg',
-            alt: 'Omi Logo'
-          })
+          Omi.h(
+            'omi-lazyload',
+            null,
+            Omi.h(
+              'div',
+              null,
+              Omi.h('img', { src: './assets/omi-logo.svg', alt: 'Omi Logo' })
+            ),
+            Omi.h(
+              'div',
+              null,
+              Omi.h('img', { src: './assets/omi-logo.svg', alt: 'Omi Logo' })
+            ),
+            Omi.h(
+              'div',
+              null,
+              Omi.h('img', { src: './assets/omi-logo.svg', alt: 'Omi Logo' })
+            )
+          )
         )
       );
     }
@@ -1618,36 +1763,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 }(_omi.WeElement), _class.observe = true, _temp));
 
 (0, _omi.render)(Omi.h('my-app', null), '#container');
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var g;
-
-// This works in non-strict mode
-g = function () {
-	return this;
-}();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1, eval)("this");
-} catch (e) {
-	// This works if the window reference is available
-	if ((typeof window === "undefined" ? "undefined" : _typeof(window)) === "object") g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
 
 /***/ }),
 /* 3 */
@@ -1684,23 +1799,23 @@ var LazyLoad = (_temp = _class = function (_WeElement) {
   _createClass(LazyLoad, [{
     key: 'install',
     value: function install() {
-      var props = this.props;
       this.data = _extends({}, this.props, {
-        'data-src': props.src,
-        src: undefined,
-        type: undefined
+        show: false
       });
     }
   }, {
     key: 'installed',
     value: function installed() {
-      _lazyload.observer.observe(this);
+      var _this2 = this;
+
+      (0, _lazyload.observer)().then(function (_observer) {
+        return _observer.observe(_this2);
+      });
     }
   }, {
     key: 'render',
     value: function render(props, data) {
-      var element = props.element ? props.element.toLowerCase() : 'img';
-      return element === 'iframe' ? Omi.h('iframe', this.data) : Omi.h('img', this.data);
+      return this.data.show && this.props.children;
     }
   }], [{
     key: 'data',
@@ -1710,10 +1825,10 @@ var LazyLoad = (_temp = _class = function (_WeElement) {
   }]);
 
   return LazyLoad;
-}(_omi.WeElement), _class.observe = true, _temp);
+}(_omi.WeElement), _class.observe = true, _class.noSlot = true, _temp);
 
 
-(0, _omi.define)('omi-lazyload', LazyLoad, false);
+(0, _omi.define)('omi-lazyload', LazyLoad);
 
 /***/ }),
 /* 4 */
@@ -1725,18 +1840,53 @@ var LazyLoad = (_temp = _class = function (_WeElement) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.observer = undefined;
+
+var _loadPolyfills = __webpack_require__(5);
+
 var config = {};
 
-var observer = new IntersectionObserver(function (entries, self) {
-  entries.forEach(function (entry) {
-    if (entry.isIntersecting) {
-      entry.target.data.src = entry.target.data['data-src'];
-      self.unobserve(entry.target);
-    }
+var observer = function observer() {
+  return new Promise(function (resolve) {
+    (0, _loadPolyfills.loadPolyfills)().then(function () {
+      resolve(new IntersectionObserver(function (entries, self) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.data.show = true;
+            self.unobserve(entry.target);
+          }
+        });
+      }, config));
+    });
   });
-}, config);
+};
 
 exports.observer = observer;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var loadPolyfills = exports.loadPolyfills = function loadPolyfills() {
+  var polyfills = [];
+
+  if (!supportsIntersectionObserver()) {
+    polyfills.push(__webpack_require__.e/* import() */(0).then(__webpack_require__.bind(null, 6)));
+  }
+
+  return Promise.all(polyfills);
+};
+
+var supportsIntersectionObserver = exports.supportsIntersectionObserver = function supportsIntersectionObserver() {
+  return 'IntersectionObserver' in global && 'IntersectionObserverEntry' in global && 'intersectionRatio' in IntersectionObserverEntry.prototype;
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ })
 /******/ ]);
